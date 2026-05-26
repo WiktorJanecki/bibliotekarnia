@@ -1,0 +1,61 @@
+@model IEnumerable<bibliotekarnia.Models.Member>
+@{
+    ViewData["Title"] = "Members";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-people-fill"></i> Library Members</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-person-plus-fill"></i> Register Member
+    </a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Member Since</th>
+                <th class="text-center">Active Loans</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var member in Model)
+            {
+                var activeLoans = member.Loans.Count(l => l.ReturnedAt == null);
+                <tr>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@member.Id" class="fw-bold text-decoration-none">
+                            @member.FullName
+                        </a>
+                    </td>
+                    <td>@member.Email</td>
+                    <td>@(member.Phone ?? "—")</td>
+                    <td>@member.MemberSince.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td class="text-center">
+                        <span class="badge @(activeLoans > 0 ? "bg-primary" : "bg-secondary")">@activeLoans</span>
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Edit" asp-route-id="@member.Id" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form asp-action="Delete" asp-route-id="@member.Id" method="post" class="d-inline"
+                              onsubmit="return confirm('Delete @member.FullName?')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if (!Model.Any())
+{
+    <p class="text-muted text-center">No members yet. <a asp-action="Create">Register one.</a></p>
+}

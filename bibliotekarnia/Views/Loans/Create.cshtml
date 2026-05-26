@@ -1,0 +1,42 @@
+@model bibliotekarnia.ViewModels.Loans.CreateLoanViewModel
+@{
+    ViewData["Title"] = "New Loan";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2><i class="bi bi-plus-circle"></i> New Loan</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label asp-for="BookId" class="form-label"></label>
+                        <select asp-for="BookId" asp-items="Model.Books" class="form-select">
+                            <option value="">— Select Book —</option>
+                        </select>
+                        <span asp-validation-for="BookId" class="text-danger small"></span>
+                        <div class="form-text">Disabled options have no copies available.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="MemberId" class="form-label"></label>
+                        <select asp-for="MemberId" asp-items="Model.Members" class="form-select">
+                            <option value="">— Select Member —</option>
+                        </select>
+                        <span asp-validation-for="MemberId" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="DueDate" class="form-label"></label>
+                        <input asp-for="DueDate" class="form-control" type="date"
+                               min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")" />
+                        <span asp-validation-for="DueDate" class="text-danger small"></span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> Create Loan</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

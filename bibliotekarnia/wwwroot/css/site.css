@@ -1,0 +1,30 @@
+body {
+    padding-top: 70px;
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.4rem;
+}
+
+.status-badge-active { background-color: #0d6efd; }
+.status-badge-overdue { background-color: #dc3545; }
+.status-badge-returned { background-color: #198754; }
+
+.stat-card {
+    border-left: 4px solid;
+    transition: transform 0.1s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.genre-bar {
+    height: 20px;
+    background: #0d6efd;
+    border-radius: 3px;
+    min-width: 4px;
+}
+
+table th { white-space: nowrap; }

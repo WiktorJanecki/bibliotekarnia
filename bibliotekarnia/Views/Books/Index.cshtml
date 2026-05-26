@@ -1,0 +1,88 @@
+@model IEnumerable<bibliotekarnia.Models.Book>
+@{
+    ViewData["Title"] = "Books";
+    var genres = ViewBag.Genres as List<string> ?? new List<string>();
+    var selectedGenre = ViewBag.SelectedGenre as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-journals"></i> Books</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add Book
+    </a>
+</div>
+
+@if (genres.Any())
+{
+    <div class="mb-3 d-flex flex-wrap gap-2 align-items-center">
+        <span class="text-muted">Filter by genre:</span>
+        <a asp-action="Index" class="btn btn-sm @(selectedGenre == null ? "btn-primary" : "btn-outline-primary")">All</a>
+        @foreach (var genre in genres)
+        {
+            <a asp-action="Index" asp-route-genre="@genre"
+               class="btn btn-sm @(selectedGenre == genre ? "btn-primary" : "btn-outline-primary")">
+                @genre
+            </a>
+        }
+    </div>
+}
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Genre</th>
+                <th>Year</th>
+                <th class="text-center">Available</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model)
+            {
+                <tr>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@book.Id" class="fw-bold text-decoration-none">
+                            @book.Title
+                        </a>
+                        @if (!string.IsNullOrEmpty(book.ISBN))
+                        {
+                            <br /><small class="text-muted">ISBN: @book.ISBN</small>
+                        }
+                    </td>
+                    <td>
+                        <a asp-controller="Authors" asp-action="Details" asp-route-id="@book.AuthorId">
+                            @book.Author.FullName
+                        </a>
+                    </td>
+                    <td>@(book.Genre ?? "—")</td>
+                    <td>@(book.PublishedYear?.ToString() ?? "—")</td>
+                    <td class="text-center">
+                        @{
+                            var badgeClass = book.AvailableCopies == 0 ? "bg-danger" : (book.AvailableCopies <= 1 ? "bg-warning text-dark" : "bg-success");
+                        }
+                        <span class="badge @badgeClass">@book.AvailableCopies / @book.TotalCopies</span>
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form asp-action="Delete" asp-route-id="@book.Id" method="post" class="d-inline"
+                              onsubmit="return confirm('Delete this book?')">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if (!Model.Any())
+{
+    <p class="text-muted text-center">No books found. <a asp-action="Create">Add one.</a></p>
+}

@@ -1,0 +1,217 @@
+@model bibliotekarnia.ViewModels.Dashboard.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="mb-4"><i class="bi bi-speedometer2"></i> Dashboard</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-md-3">
+        <div class="card stat-card border-primary h-100" style="border-left-color: #0d6efd !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Books</div>
+                        <div class="fs-2 fw-bold">@Model.TotalBooks</div>
+                    </div>
+                    <i class="bi bi-journals fs-1 text-primary opacity-50"></i>
+                </div>
+                <a asp-controller="Books" asp-action="Index" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card stat-card border-success h-100" style="border-left-color: #198754 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-muted small">Total Members</div>
+                        <div class="fs-2 fw-bold">@Model.TotalMembers</div>
+                    </div>
+                    <i class="bi bi-people-fill fs-1 text-success opacity-50"></i>
+                </div>
+                <a asp-controller="Members" asp-action="Index" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card stat-card border-info h-100" style="border-left-color: #0dcaf0 !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-muted small">Active Loans</div>
+                        <div class="fs-2 fw-bold">@Model.ActiveLoans</div>
+                    </div>
+                    <i class="bi bi-arrow-left-right fs-1 text-info opacity-50"></i>
+                </div>
+                <a asp-controller="Loans" asp-action="Index" asp-route-filter="active" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-md-3">
+        <div class="card stat-card @(Model.OverdueLoans > 0 ? "border-danger" : "border-secondary") h-100"
+             style="border-left-color: @(Model.OverdueLoans > 0 ? "#dc3545" : "#6c757d") !important;">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="text-muted small">Overdue Loans</div>
+                        <div class="fs-2 fw-bold @(Model.OverdueLoans > 0 ? "text-danger" : "")">@Model.OverdueLoans</div>
+                    </div>
+                    <i class="bi bi-exclamation-triangle-fill fs-1 @(Model.OverdueLoans > 0 ? "text-danger" : "text-secondary") opacity-50"></i>
+                </div>
+                <a asp-controller="Loans" asp-action="Index" asp-route-filter="overdue" class="stretched-link"></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-bold">
+                <i class="bi bi-trophy-fill text-warning"></i> Top 5 Most Popular Books
+            </div>
+            <div class="card-body p-0">
+                @if (Model.TopBooks.Any())
+                {
+                    <ol class="list-group list-group-flush list-group-numbered">
+                        @foreach (var item in Model.TopBooks)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a asp-controller="Books" asp-action="Details" asp-route-id="@item.BookId"
+                                       class="fw-bold text-decoration-none">@item.Title</a>
+                                    <br /><small class="text-muted">@item.AuthorName</small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">@item.LoanCount loans</span>
+                            </li>
+                        }
+                    </ol>
+                }
+                else { <p class="p-3 text-muted">No loan data yet.</p> }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header fw-bold">
+                <i class="bi bi-star-fill text-warning"></i> Top 5 Most Active Members
+            </div>
+            <div class="card-body p-0">
+                @if (Model.TopMembers.Any())
+                {
+                    <ol class="list-group list-group-flush list-group-numbered">
+                        @foreach (var item in Model.TopMembers)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <a asp-controller="Members" asp-action="Details" asp-route-id="@item.MemberId"
+                                   class="fw-bold text-decoration-none">@item.FullName</a>
+                                <span class="badge bg-success rounded-pill">@item.LoanCount loans</span>
+                            </li>
+                        }
+                    </ol>
+                }
+                else { <p class="p-3 text-muted">No loan data yet.</p> }
+            </div>
+        </div>
+    </div>
+
+    @if (Model.GenreCounts.Any())
+    {
+        var maxCount = Model.GenreCounts.Max(g => g.Count);
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header fw-bold">
+                    <i class="bi bi-bar-chart-fill text-info"></i> Books by Genre
+                </div>
+                <div class="card-body">
+                    @foreach (var genre in Model.GenreCounts)
+                    {
+                        var pct = maxCount > 0 ? (int)((double)genre.Count / maxCount * 100) : 0;
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>
+                                    <a asp-controller="Books" asp-action="Index" asp-route-genre="@genre.Genre"
+                                       class="text-decoration-none">@genre.Genre</a>
+                                </span>
+                                <span class="text-muted">@genre.Count</span>
+                            </div>
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar" style="width: @pct%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.MonthlyLoans.Any())
+    {
+        var maxMonthly = Model.MonthlyLoans.Max(m => m.Count);
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header fw-bold">
+                    <i class="bi bi-graph-up text-success"></i> Loans per Month (Last 12 Months)
+                </div>
+                <div class="card-body">
+                    @foreach (var month in Model.MonthlyLoans)
+                    {
+                        var pct = maxMonthly > 0 ? (int)((double)month.Count / maxMonthly * 100) : 0;
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between small mb-1">
+                                <span>@(new DateTime(month.Year, month.Month, 1).ToString("MMM yyyy"))</span>
+                                <span class="text-muted">@month.Count</span>
+                            </div>
+                            <div class="progress" style="height: 12px;">
+                                <div class="progress-bar bg-success" style="width: @pct%"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.OverdueLoanList.Any())
+    {
+        <div class="col-12">
+            <div class="card border-danger">
+                <div class="card-header fw-bold text-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Overdue Loans (@Model.OverdueLoanList.Count)
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm table-danger mb-0">
+                        <thead>
+                            <tr>
+                                <th>Book</th>
+                                <th>Member</th>
+                                <th>Due Date</th>
+                                <th>Days Overdue</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.OverdueLoanList)
+                            {
+                                <tr>
+                                    <td>@item.BookTitle</td>
+                                    <td>@item.MemberName</td>
+                                    <td>@item.DueDate.ToLocalTime().ToString("dd MMM yyyy")</td>
+                                    <td><span class="badge bg-danger">@item.DaysOverdue days</span></td>
+                                    <td>
+                                        <a asp-controller="Loans" asp-action="Details" asp-route-id="@item.LoanId"
+                                           class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>

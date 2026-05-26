@@ -1,0 +1,90 @@
+@model IEnumerable<bibliotekarnia.Models.Loan>
+@{
+    ViewData["Title"] = "Loans";
+    var filter = ViewBag.Filter as string ?? "all";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-arrow-left-right"></i> Loans</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> New Loan
+    </a>
+</div>
+
+<ul class="nav nav-tabs mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(filter == "all" ? "active" : "")" asp-action="Index">All</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(filter == "active" ? "active" : "")" asp-action="Index" asp-route-filter="active">Active</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(filter == "overdue" ? "active" : "")" asp-action="Index" asp-route-filter="overdue">
+            Overdue
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(filter == "returned" ? "active" : "")" asp-action="Index" asp-route-filter="returned">
+            Returned
+        </a>
+    </li>
+</ul>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Book</th>
+                <th>Member</th>
+                <th>Loaned</th>
+                <th>Due</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var loan in Model)
+            {
+                <tr class="@(loan.IsOverdue ? "table-danger" : (loan.IsReturned ? "table-success" : ""))">
+                    <td>
+                        <a asp-controller="Books" asp-action="Details" asp-route-id="@loan.BookId">
+                            @loan.Book.Title
+                        </a>
+                        <br /><small class="text-muted">@loan.Book.Author.FullName</small>
+                    </td>
+                    <td>
+                        <a asp-controller="Members" asp-action="Details" asp-route-id="@loan.MemberId">
+                            @loan.Member.FullName
+                        </a>
+                    </td>
+                    <td>@loan.LoanedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td>@loan.DueDate.ToLocalTime().ToString("dd MMM yyyy")</td>
+                    <td>
+                        <span class="badge @(loan.IsReturned ? "bg-success" : (loan.IsOverdue ? "bg-danger" : "bg-primary"))">
+                            @loan.Status
+                        </span>
+                    </td>
+                    <td class="text-end">
+                        <a asp-action="Details" asp-route-id="@loan.Id" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        @if (!loan.IsReturned)
+                        {
+                            <form asp-action="Return" asp-route-id="@loan.Id" method="post" class="d-inline"
+                                  onsubmit="return confirm('Mark as returned?')">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="bi bi-check-circle"></i> Return
+                                </button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+@if (!Model.Any())
+{
+    <p class="text-muted text-center">No loans found for this filter.</p>
+}

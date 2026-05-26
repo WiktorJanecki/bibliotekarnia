@@ -1,0 +1,33 @@
+# Build outputs
+bin/
+obj/
+
+# SQLite database
+*.db
+*.db-shm
+*.db-wal
+
+# .NET secrets and user-specific files
+*.user
+*.suo
+.vs/
+launchSettings.json
+
+# NuGet
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# Rider / JetBrains (keep .idea config but ignore caches)
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries/
+.idea/**/shelf/
+.idea/**/.idea.iml
+.idea/**/caches/
+
+# OS
+.DS_Store
+Thumbs.db

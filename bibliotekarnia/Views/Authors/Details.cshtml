@@ -1,0 +1,72 @@
+@model bibliotekarnia.Models.Author
+@{
+    ViewData["Title"] = Model.FullName;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2><i class="bi bi-person-lines-fill"></i> @Model.FullName</h2>
+    <div>
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a asp-action="Index" class="btn btn-outline-primary">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Author Details</h5>
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Nationality</dt>
+                    <dd class="col-sm-7">@(Model.Nationality ?? "—")</dd>
+                    <dt class="col-sm-5">Birth Year</dt>
+                    <dd class="col-sm-7">@(Model.BirthYear?.ToString() ?? "—")</dd>
+                    <dt class="col-sm-5">Books</dt>
+                    <dd class="col-sm-7">@Model.Books.Count</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <h5>Books by @Model.FullName</h5>
+        @if (Model.Books.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-sm table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Title</th>
+                            <th>Genre</th>
+                            <th>Year</th>
+                            <th>Copies</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var book in Model.Books.OrderBy(b => b.Title))
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Books" asp-action="Details" asp-route-id="@book.Id">@book.Title</a>
+                                </td>
+                                <td>@(book.Genre ?? "—")</td>
+                                <td>@(book.PublishedYear?.ToString() ?? "—")</td>
+                                <td>@book.TotalCopies</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">No books by this author yet.</p>
+        }
+        <a asp-controller="Books" asp-action="Create" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-plus-lg"></i> Add Book for this Author
+        </a>
+    </div>
+</div>
