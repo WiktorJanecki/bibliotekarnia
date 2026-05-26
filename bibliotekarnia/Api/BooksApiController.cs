@@ -114,6 +114,9 @@ public class BooksApiController : ControllerBase
         var book = await _db.Books.FindAsync(id);
         if (book == null) return NotFound(new { error = "Book not found." });
 
+        var relatedLoans = await _db.Loans.Where(l => l.BookId == id).ToListAsync();
+        _db.Loans.RemoveRange(relatedLoans);
+        
         _db.Books.Remove(book);
         await _db.SaveChangesAsync();
         return Ok(new { message = "Book deleted." });

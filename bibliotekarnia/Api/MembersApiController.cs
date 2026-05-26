@@ -98,6 +98,9 @@ public class MembersApiController : ControllerBase
         var member = await _db.Members.FindAsync(id);
         if (member == null) return NotFound(new { error = "Member not found." });
 
+        var relatedLoans = await _db.Loans.Where(l => l.MemberId == id).ToListAsync();
+        _db.Loans.RemoveRange(relatedLoans);
+
         _db.Members.Remove(member);
         await _db.SaveChangesAsync();
         return Ok(new { message = "Member deleted." });

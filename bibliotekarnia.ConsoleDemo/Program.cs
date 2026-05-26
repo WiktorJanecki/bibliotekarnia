@@ -3,14 +3,22 @@ using System.Text;
 using System.Text.Json;
 
 // ─── Configuration ────────────────────────────────────────────────────────────
-const string BaseUrl = "http://localhost:5223";
+var baseUrl = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://localhost:5000";
 const string AdminUsername = "admin";
 
-Console.Write("Enter admin API token (printed on first run of the server): ");
-var adminToken = Console.ReadLine()?.Trim() ?? string.Empty;
+string adminToken;
+if (args.Length > 0)
+{
+    adminToken = args[0];
+}
+else
+{
+    Console.Write("Enter admin API token (printed on first run of the server): ");
+    adminToken = Console.ReadLine()?.Trim() ?? string.Empty;
+}
 
 // ─── HTTP Client Setup ────────────────────────────────────────────────────────
-using var http = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+using var http = new HttpClient { BaseAddress = new Uri(baseUrl) };
 
 var json = new JsonSerializerOptions { WriteIndented = true };
 int createdAuthorId = 0, createdBookId = 0, createdMemberId = 0, createdLoanId = 0;
@@ -39,9 +47,9 @@ async Task RunStep(int step, string description, Func<Task> action)
     }
 }
 
-async Task<string?> SendAndPrint(HttpMethod method, string path, object? body = null)
+async Task<string?> SendAndPrint(HttpMethod method, string path, object? body = null, System.Net.HttpStatusCode expectedStatus = System.Net.HttpStatusCode.OK)
 {
-    Console.WriteLine($"  → {method.Method} {BaseUrl}{path}");
+    Console.WriteLine($"  → {method.Method} {baseUrl}{path}");
     HttpResponseMessage response;
 
     if (body != null)
@@ -63,7 +71,11 @@ async Task<string?> SendAndPrint(HttpMethod method, string path, object? body = 
         var doc = JsonDocument.Parse(raw);
         prettyJson = JsonSerializer.Serialize(doc, json);
         Console.WriteLine();
-        Console.ForegroundColor = (int)response.StatusCode < 400 ? ConsoleColor.Green : ConsoleColor.Red;
+        
+        bool isExpected = response.StatusCode == expectedStatus || 
+                         (expectedStatus == System.Net.HttpStatusCode.OK && (int)response.StatusCode >= 200 && (int)response.StatusCode < 300);
+                         
+        Console.ForegroundColor = isExpected ? ConsoleColor.Green : ConsoleColor.Red;
         Console.WriteLine(prettyJson);
         Console.ResetColor();
     }
@@ -79,7 +91,7 @@ async Task<string?> SendAndPrint(HttpMethod method, string path, object? body = 
 await RunStep(1, "Invalid token → expect 401", async () =>
 {
     SetHeaders(AdminUsername, "invalid_token_xyz");
-    await SendAndPrint(HttpMethod.Get, "/api/books");
+    await SendAndPrint(HttpMethod.Get, "/api/books", expectedStatus: System.Net.HttpStatusCode.Unauthorized);
 });
 
 SetHeaders(AdminUsername, adminToken);
@@ -130,7 +142,7 @@ await RunStep(5, "Create a member → expect 201", async () =>
     {
         FirstName = "Jan",
         LastName = "Kowalski",
-        Email = $"jan.demo.{Guid.NewGuid():N[..8]}@test.com",
+        Email = $"jan.demo.{Guid.NewGuid().ToString("N").Substring(0, 8)}@test.com",
         MemberSince = DateTime.Today.AddYears(-1)
     });
     if (result != null)
