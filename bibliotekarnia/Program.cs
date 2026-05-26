@@ -71,10 +71,16 @@ using (var scope = app.Services.CreateScope())
     DbSeeder.Seed(scope.ServiceProvider);
 }
 
+// Enable Swagger in all environments for this project
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Bibliotekarnia API V1");
+});
+
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    // Other development-only middleware could go here
 }
 
 app.UseHttpsRedirection();

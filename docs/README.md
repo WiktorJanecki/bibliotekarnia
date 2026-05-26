@@ -58,11 +58,11 @@ First run: admin user created.
 
 ### Access the application
 
-Open your browser at: **http://localhost:5223**
+Open your browser at: **http://localhost:5000**
 
 Log in with: `admin` / `Admin123!`
 
-Swagger UI (REST API docs): **http://localhost:5223/swagger**
+Swagger UI (REST API docs): **http://localhost:5000/swagger**
 
 ---
 
