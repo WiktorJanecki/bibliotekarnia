@@ -1,8 +1,7 @@
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 
-// ─── Configuration ────────────────────────────────────────────────────────────
 var baseUrl = Environment.GetEnvironmentVariable("API_BASE_URL") ?? "http://localhost:5000";
 const string AdminUsername = "admin";
 
@@ -17,13 +16,11 @@ else
     adminToken = Console.ReadLine()?.Trim() ?? string.Empty;
 }
 
-// ─── HTTP Client Setup ────────────────────────────────────────────────────────
 using var http = new HttpClient { BaseAddress = new Uri(baseUrl) };
 
 var json = new JsonSerializerOptions { WriteIndented = true };
 int createdAuthorId = 0, createdBookId = 0, createdMemberId = 0, createdLoanId = 0;
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 void SetHeaders(string username, string token)
 {
     http.DefaultRequestHeaders.Remove("X-Username");
@@ -35,9 +32,10 @@ void SetHeaders(string username, string token)
 async Task RunStep(int step, string description, Func<Task> action)
 {
     Console.WriteLine();
-    Console.WriteLine("══════════════════════════════════════════");
+    Console.WriteLine("-----------------------------------------");
     Console.WriteLine($"  Step {step}: {description}");
-    Console.WriteLine("══════════════════════════════════════════");
+    Console.WriteLine("-----------------------------------------");
+
     try { await action(); }
     catch (Exception ex)
     {
@@ -87,7 +85,6 @@ async Task<string?> SendAndPrint(HttpMethod method, string path, object? body = 
     return prettyJson;
 }
 
-// ─── Demo Steps ───────────────────────────────────────────────────────────────
 await RunStep(1, "Invalid token → expect 401", async () =>
 {
     SetHeaders(AdminUsername, "invalid_token_xyz");
@@ -211,6 +208,6 @@ await RunStep(13, "Delete the demo member (no active loans) → expect 200", asy
 });
 
 Console.WriteLine();
-Console.WriteLine("══════════════════════════════════════════");
+Console.WriteLine("-----------------------------------------");
 Console.WriteLine("  All demo steps completed.");
-Console.WriteLine("══════════════════════════════════════════");
+Console.WriteLine("-----------------------------------------");

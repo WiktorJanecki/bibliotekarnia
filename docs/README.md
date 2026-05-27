@@ -1,7 +1,13 @@
-# Bibliotekarnia — Library Management System
+# Bibliotekarnia - Library Management System
+<img src="ss.png">
+
 ## Description
 
 **Bibliotekarnia** is a web-based library management system that allows library staff to manage books, authors, library members, and book loans. The application provides both a web user interface (for day-to-day staff use) and a REST API (for programmatic access and integrations).
+
+## Authors
+- Wiktor Janecki
+- Dmytro Harasiuk
 
 ---
 
