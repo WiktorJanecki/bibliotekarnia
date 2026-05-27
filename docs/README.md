@@ -1,13 +1,4 @@
 # Bibliotekarnia — Library Management System
-
-## Project Information
-
-| Field | Value |
-|---|---|
-| Course | Programowanie zaawansowane 2 |
-| Assignment | Laboratorium 11: ASP.NET core MVC oraz REST API |
-| Technology | ASP.NET Core 8 MVC + REST API, SQLite, Entity Framework Core |
-
 ## Description
 
 **Bibliotekarnia** is a web-based library management system that allows library staff to manage books, authors, library members, and book loans. The application provides both a web user interface (for day-to-day staff use) and a REST API (for programmatic access and integrations).
